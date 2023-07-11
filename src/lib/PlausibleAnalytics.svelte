@@ -95,11 +95,21 @@
 	 */
 	export let pageviewprops: { prop: string | boolean } | boolean = false;
 
-	const setPageviewProps: Action<HTMLElement> | boolean = (node) => {
+	/**
+	 * Sets the page view props as attributes on the provided HTML element.
+	 * @param node The HTML <script> element to set attributes on.
+	 */
+	const setPageviewProps: Action<HTMLScriptElement> | boolean = (node) => {
+		// If pageviewprops is not defined or falsy, return early.
 		if (!pageviewprops) return;
-		Object.entries(pageviewprops).map((prop) => {
-			if (prop[1] === false) return false;
-			node.setAttribute(`event-${prop[0]}`, `${prop[1]}`);
+
+		// Iterate over each key-value pair in pageviewprops.
+		Object.entries(pageviewprops).forEach(([key, value]) => {
+			// If the value is not explicitly false, set the attribute on the element.
+			if (value !== false) {
+				// Set the attribute in the format 'event-key' with the stringified value.
+				node.setAttribute(`event-${key}`, String(value));
+			}
 		});
 	};
 
