@@ -131,18 +131,27 @@
 		// In development mode, load validation guards dynamically and validate custom property limits.
 		if (dev) {
 			const guards = await import('./guards.js');
+			const length = Object.entries(pageviewProps).length;
 			({ isCustomPropsLimit, isCustomPropEntryLimit } = guards);
 
 			// Validate the total number of custom properties against Plausible's limit.
-			isCustomPropsLimit(pageviewProps);
+			if (!isCustomPropsLimit(pageviewProps)) {
+				throw Error(
+					`Plausible Analytics has a limit of 30 custom properties per event. ${length} properties counted.`
+				);
+			}
 		}
 
 		// Iterate over each key-value pair in pageviewProps to set them as attributes.
 		Object.entries(pageviewProps).forEach(([key, value]) => {
 			// In development mode, validate the length of property names and values.
 			if (dev) {
-				isCustomPropEntryLimit(300, key);
-				isCustomPropEntryLimit(2000, value);
+				if (!isCustomPropEntryLimit(300, key)) {
+					throw Error(`Plausible Analytics limit custom property names to 300 characters.`);
+				}
+				if (!isCustomPropEntryLimit(2000, value)) {
+					throw Error(`Plausible Analytics limit custom property values to 3000 characters.`);
+				};
 			}
 
 			// Set the attribute on the script node. Format: 'event-key'
